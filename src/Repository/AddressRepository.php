@@ -21,6 +21,14 @@ class AddressRepository extends ServiceEntityRepository
         parent::__construct($registry, Address::class);
     }
 
+    public function add(Address $address, bool $flush = false): void
+    {
+        $this->persist($address);
+
+        if($flush)
+            $this->flush();
+    }
+
 //    /**
 //     * @return Address[] Returns an array of Address objects
 //     */

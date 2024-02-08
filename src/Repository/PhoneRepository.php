@@ -20,6 +20,13 @@ class PhoneRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Phone::class);
     }
+    public function add(Phone $phone, bool $flush = false): void
+    {
+        $this->persist($phone);
+
+        if($flush)
+            $this->flush();
+    }
 
 //    /**
 //     * @return Phone[] Returns an array of Phone objects
