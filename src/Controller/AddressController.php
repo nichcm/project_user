@@ -42,6 +42,7 @@ class AddressController extends AbstractController
         }
 
         $address->setNumber($data['number']);
+        $address->setStreet($data['street']);
         $address->setCity($data['city']);
         $address->setState($data['state']);
         $address->setZipCode($data['zipCode']);
