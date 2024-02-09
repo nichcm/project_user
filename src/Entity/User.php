@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,8 +23,8 @@ class User
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateOfBirth = null;
 
-    #[ORM\OneToMany(targetEntity: Phone::class, mappedBy: 'user')]
-    private Collection $Phones;
+    #[ORM\OneToMany(targetEntity: Phone::class, mappedBy: 'user', cascade:['persist', 'remove'])]
+    private Collection  $Phones;
 
     #[ORM\OneToOne(cascade: ['persist', 'remove'])]
     private ?Address $Address = null;
@@ -62,9 +63,7 @@ class User
         return $this;
     }
 
-    /**
-     * @return Collection<int, Phone>
-     */
+    #[Groups(["user"])]
     public function getPhones(): Collection
     {
         return $this->Phones;

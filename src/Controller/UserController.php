@@ -13,64 +13,45 @@ use App\Entity\Phone;
 
 class UserController extends AbstractController
 {
-    #[Route('/user', name: 'app_user')]
-    public function index(): JsonResponse
+    #[Route('/user', name: 'getUsers', methods: ['GET'])]
+    public function getUsers( UserRepository $userRepository): JsonResponse
     {
+        $users = $userRepository->findAll();
         return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/UserController.php',
+            'data' => $users,
         ]);
     }
 
-    #[Route('/user/step1', name: 'registerStep1', methods: ['POST'])]
-    public function registerStep1(Request $request, UserRepository $userRepository)
+    #[Route('/user/{id}', name: 'getUserByid', methods: ['GET'])]
+    public function getUserByid($id, UserRepository $userRepository): JsonResponse
+    {
+        $user = $userRepository->find($id);
+
+        if(!$user) throw $this->createNotFoundException('User not found');
+
+        return $this->json($user);
+    }
+
+    #[Route('/user/saveUser', name: 'saveUser', methods: ['POST','PUT'])]
+    public function saveUser(Request $request, UserRepository $userRepository)
     {
         $data = json_decode($request->getContent(), true);
+
+        $userId = $data['userId'] ?? null;
 
         $user = new User();
+
+        if ($userId) {
+            $user = $userRepository->find($userId);
+
+            if (!$user) throw $this->createNotFoundException('User not found');
+        }
+
         $user->setFullName($data['fullName']);
-        
         $user->setDateOfBirth(new \DateTime($data['dateOfBirth'], new \DateTimeZone('America/Sao_Paulo')));
 
-        $userRepository->add($user, true);
-
-        return new JsonResponse(['success' => true,  'id' => $user->getId()]);
-    }
-
-    #[Route('/user/step2', name: 'registerStep2', methods: ['POST'])]
-    public function registerStep2(Request $request, UserRepository $userRepository)
-    {
-        $data = json_decode($request->getContent(), true);
-
-        $user = $userRepository->find($data['id']);
-
-        // Atualizar a entidade do usuário com os dados da etapa 2
-        $address = new Address();
-        $address->setNumber($data['number']);
-        $address->setCity($data['city']);
-        $address->setState($data['state']);
-        $address->setZipCode($data['zipCode']);
-        $user->setAddress($address);
-
-        $userRepository->add($user, true);
+        $userRepository->save($user, true);
 
         return new JsonResponse(['success' => true, 'id' => $user->getId()]);
-    }
-
-    #[Route('/user/step3', name: 'registerStep3', methods: ['POST'])]
-    public function registerStep3(Request $request, UserRepository $userRepository)
-    {
-        $data = json_decode($request->getContent(), true);
-
-        $user = $userRepository->find($data['id']);
-
-        $phone = new Phone();
-        
-        $user->addPhone($phone);
-        $user->addPhone($phone);
-
-         $userRepository->add($user, true);
-
-        return new JsonResponse(['success' => true]);
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PhoneRepository;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PhoneRepository::class)]
@@ -19,7 +21,7 @@ class Phone
     #[ORM\Column]
     private ?bool $mobile = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Phones')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'Phones')]
     private ?User $user = null;
 
     public function getId(): ?int
@@ -51,6 +53,8 @@ class Phone
         return $this;
     }
 
+    #[Groups(["user"])]
+    #[Ignore]
     public function getUser(): ?User
     {
         return $this->user;
